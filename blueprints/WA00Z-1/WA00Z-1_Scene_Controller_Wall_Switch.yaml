@@ -1,0 +1,66 @@
+blueprint:
+  name: GoControl WA00Z-1 Z-Wave Scene-Controller Wall Switch
+  description: Create automations for the GoControl WA00Z-1
+  domain: automation
+
+  input:
+    gocontrol_scene_device:
+      name: GoControl WA00Z-1 Z-Wave Scene-Controller Wall Switch
+      description: GoControl WA00Z-1 Device.
+      selector:
+        device:
+          integration: zwave_js
+          manufacturer: Nortek Security & Control LLC
+          model: WA00Z-1
+
+    button_1_pressed:
+      name: Button 1 Pressed
+      description: Actions to run when button 1 is pressed.
+      default: []
+      selector:
+        action:
+
+    button_1_held:
+      name: Button 1 Held Down
+      description: Actions to run when button 1 is held down.
+      default: []
+      selector:
+        action:
+
+    button_2_pressed:
+      name: Button 2 Pressed
+      description: Actions to run when button 2 is pressed.
+      default: []
+      selector:
+        action:
+
+    button_2_held:
+      name: Button 2 Held Down
+      description: Actions to run when button 2 is held down.
+      default: []
+      selector:
+        action:
+
+mode: single
+max_exceeded: silent
+
+trigger:
+  platform: event
+  event_type: zwave_js_value_notification
+  event_data:
+    device_id: !input gocontrol_scene_device
+    command_class_name: "Central Scene"
+
+action:
+  - variables:
+      action_name: "{{ trigger.event.data.value }}"
+      property_key: "{{ trigger.event.data.property_key }}"
+  - choose:
+      - conditions: "{{ action_name == 'KeyPressed' and property_key == '001'}}"
+        sequence: !input button_1_pressed
+      - conditions: "{{ action_name == 'KeyHeldDown' and property_key == '001' }}"
+        sequence: !input button_1_held
+      - conditions: "{{ action_name == 'KeyPressed' and property_key == '002' }}"
+        sequence: !input button_2_pressed
+      - conditions: "{{ action_name == 'KeyHeldDown' and property_key == '002' }}"
+        sequence: !input button_2_held
